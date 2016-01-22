@@ -1,4 +1,4 @@
-# ASP.NET Core 1.0 Hosting .NET 4.6
+# ASP.NET Core 1.0 with Entity Framework 6
 
 1. Start with a new C# web app using ASP.NET 5 (Core 1.0)
     - Select the Web API template (preview)
@@ -31,43 +31,74 @@
         public decimal UnitPrice { get; set; }
     }
     ```
-6. Add a `SampleContext` inheriting from `DbContext`.
+6. Add a `SampleDbContext` inheriting from `DbContext`.
     - Place a `DbConfigurationType` attribute on it with `DbConfig`.
     - Add a `Products` property of type `DbSet<Product>`
 
     ```chsarp
     [DbConfigurationType(typeof(DbConfig))]
-    public class SampleContext : DbContext
+    public class SampleDbContext : DbContext
     {
-        public SampleContext(string connectionName) :
+        public SampleDbContext(string connectionName) :
             base(connectionName) { }
 
         public DbSet<Product> Products { get; set; }
     }
     ```
-7. Add a "Data" section to appsettings.json with a connection string
+7. Optionally create a `SampleDbInitializer` class which inherits from `DropCreateDatabaseIfModelChanges<SampleDbContext>`.
+    - Override the `Seed` method to see the database with data.
+
+    ```csharp
+    public class SampleDbInitializer : DropCreateDatabaseIfModelChanges<SampleDbContext>
+    {
+        protected override void Seed(SampleDbContext context)
+        {
+            var products = new List<Product>
+            {
+                new Product { Id = 1, ProductName = "Chai", UnitPrice = 10 },
+                new Product { Id = 2, ProductName = "Chang", UnitPrice = 11 },
+                new Product { Id = 3, ProductName = "Aniseed Syrup", UnitPrice = 12 },
+            };
+
+            context.Products.AddRange(products);
+
+            context.SaveChanges();
+        }
+    }    
+    ```
+
+8. Add a static ctor to `SampleDbContext` to set the context initializer.
+
+    ```csharp
+    static SampleDbContext()
+    {
+        Database.SetInitializer(new SampleDbInitializer());
+    }    
+    ```
+
+9. Add a "Data" section to appsettings.json with a connection string
     - Here we specify LocalDb, but SQL Express or full is OK too.
 
     ```json
     "Data": {
-      "NorthwindSlim": {
-        "ConnectionString": "Data Source=(localdb)\\MSSQLLocalDB;Database=Sample;Integrated Security=True"
+      "SampleDb": {
+        "ConnectionString": "Data Source=(localdb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\SampleDb.mdf;Integrated Security=True; MultipleActiveResultSets=True"
       }
     }
     ```
 
-8. Register `SampleContext` with DI system by supplying a new instance of `SampleContext`
+10. Register `SampleDbContext` with DI system by supplying a new instance of `SampleDbContext`
     - Add the following code to the `ConfigureServices` method in `Startup`
 
     ```csharp
     services.AddScoped(provider =>
     {
-        var connectionString = Configuration["Data:NorthwindSlim:ConnectionString"];
-        return new SampleContext(connectionString);
+        var connectionString = Configuration["Data:SampleDb:ConnectionString"];
+        return new SampleDbContext(connectionString);
     });
     ```
-9. Add a `ProductsController` that extends `Controller`
-    - Pass `SampleContext` to the ctor
+11. Add a `ProductsController` that extends `Controller`
+    - Pass `SampleDbContext` to the ctor
     - Add actions for GET, POST, PUT and DELETE
     - Override `Dispose` to dispose of the context
 
@@ -75,9 +106,9 @@
     [Route("api/[controller]")]
     public class ProductsController : Controller
     {
-        private readonly SampleContext _dbContext;
+        private readonly SampleDbContext _dbContext;
 
-        public ProductsController(SampleContext dbContext)
+        public ProductsController(SampleDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -148,7 +179,7 @@
     }
     ```
 
-10. Test the controller by running the app and submitting some requests.
+12. Test the controller by running the app and submitting some requests.
     - Use Postman or Fiddler
     - Set Content-Type header to application/json
     - The database should be created automatically
@@ -156,11 +187,10 @@
     ```
     GET: http://localhost:49951/api/products
     POST: http://localhost:49951/api/products
-      - Body: {"ProductName":"Chai","UnitPrice":10}
-      - Body: {"ProductName":"Chang","UnitPrice":10}
-    GET: http://localhost:49951/api/products/2
+      - Body: {"ProductName":"Ikura","UnitPrice":12}
+    GET: http://localhost:49951/api/products/4
     PUT: http://localhost:49951/api/products
-      - Body: {"Id":2,"ProductName":"Chang","UnitPrice":11}
-    DELETE: http://localhost:49951/api/products/2
+      - Body: {"Id":4,"ProductName":"Ikura","UnitPrice":13}
+    DELETE: http://localhost:49951/api/products/4
     ```
 

@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Experimental.AspNetCore.EF6.Data;
+using Experimental.AspNetCore.EF6.Contexts;
 using Experimental.AspNetCore.EF6.Models;
 using Microsoft.AspNet.Mvc;
 
@@ -10,9 +10,9 @@ namespace Experimental.AspNetCore.EF6.Controllers
     [Route("api/[controller]")]
     public class ProductsController : Controller
     {
-        private readonly SampleContext _dbContext;
+        private readonly SampleDbContext _dbContext;
 
-        public ProductsController(SampleContext dbContext)
+        public ProductsController(SampleDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -22,7 +22,6 @@ namespace Experimental.AspNetCore.EF6.Controllers
         public async Task<ObjectResult> Get()
         {
             var products = await _dbContext.Products
-                .OrderBy(e => e.ProductName)
                 .ToListAsync();
             return Ok(products);
         }

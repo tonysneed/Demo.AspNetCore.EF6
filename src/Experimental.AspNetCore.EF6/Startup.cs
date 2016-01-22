@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Experimental.AspNetCore.EF6.Data;
+using System.IO;
+using Experimental.AspNetCore.EF6.Contexts;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Experimental.AspNetCore.EF6
 {
@@ -20,6 +19,10 @@ namespace Experimental.AspNetCore.EF6
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            // Set up data directory
+            string appRoot = PlatformServices.Default.Application.ApplicationBasePath;
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(appRoot, "App_Data"));
         }
 
         public IConfigurationRoot Configuration { get; set; }
@@ -30,8 +33,8 @@ namespace Experimental.AspNetCore.EF6
             // Add DbContext
             services.AddScoped(provider =>
             {
-                var connectionString = Configuration["Data:NorthwindSlim:ConnectionString"];
-                return new SampleContext(connectionString);
+                var connectionString = Configuration["Data:SampleDb:ConnectionString"];
+                return new SampleDbContext(connectionString);
             });
 
             // Add framework services.

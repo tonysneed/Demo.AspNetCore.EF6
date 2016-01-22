@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 
-namespace Experimental.AspNetCore.EF6.Data
+namespace Experimental.AspNetCore.EF6.Contexts
 {
     public class DbConfig : DbConfiguration
     {

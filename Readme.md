@@ -1,4 +1,4 @@
-ASP.NET Core 1.0 Hosting .NET 4.6
+# ASP.NET Core 1.0 Hosting .NET 4.6
 
 1. Start with a new C# web app using ASP.NET 5 (Core 1.0)
     - Select the Web API template (preview)

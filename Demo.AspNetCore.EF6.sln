@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Experimental.AspNetCore.EF6", "src\Experimental.AspNetCore.EF6\Experimental.AspNetCore.EF6.xproj", "{4D8835D3-9BE9-490E-BFB5-634A3809534B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Demo.AspNetCore.EF6", "src\Experimental.AspNetCore.EF6\Demo.AspNetCore.EF6.xproj", "{4D8835D3-9BE9-490E-BFB5-634A3809534B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

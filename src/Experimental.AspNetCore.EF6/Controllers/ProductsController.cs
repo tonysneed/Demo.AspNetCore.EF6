@@ -74,10 +74,5 @@ namespace Experimental.AspNetCore.EF6.Controllers
             _dbContext.Entry(product).State = EntityState.Deleted;
             await _dbContext.SaveChangesAsync();
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            _dbContext.Dispose();
-        }
     }
 }

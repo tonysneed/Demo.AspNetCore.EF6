@@ -12,7 +12,7 @@ namespace Experimental.AspNetCore.EF6
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
         {
             // Set up configuration sources.
             var builder = new ConfigurationBuilder()
@@ -21,7 +21,7 @@ namespace Experimental.AspNetCore.EF6
             Configuration = builder.Build();
 
             // Set up data directory
-            string appRoot = PlatformServices.Default.Application.ApplicationBasePath;
+            string appRoot = appEnv.ApplicationBasePath;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(appRoot, "App_Data"));
         }
 

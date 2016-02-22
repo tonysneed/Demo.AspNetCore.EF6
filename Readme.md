@@ -1,4 +1,4 @@
-# ASP.NET Core 1.0 with Entity Framework 6
+# Using Entity Framework 6 with ASP.NET Core 1.0
 
 1. Start with a new C# web app using ASP.NET 5 (Core 1.0)
     - Select the Web API template (preview)
@@ -6,7 +6,7 @@
 2. Open project.json and remove dnxcore50 from the frameworks section.
     - Leave dnx451 under frameworks.
 
-3. Under Entity Framework unser dependencies in the project.json file.
+3. Add Entity Framework under dependencies in the project.json file.
     - This should be the full EF 6.x.
 
 4.  Add a `DbConfig` class that extends `DbConfiguration`
@@ -31,6 +31,7 @@
         public decimal UnitPrice { get; set; }
     }
     ```
+
 6. Add a `SampleDbContext` inheriting from `DbContext`.
     - Place a `DbConfigurationType` attribute on it with `DbConfig`.
     - Add a `Products` property of type `DbSet<Product>`
@@ -87,7 +88,24 @@
     }
     ```
 
-10. Register `SampleDbContext` with DI system by supplying a new instance of `SampleDbContext`
+10. Update the `Startup` ctor to set the "DataDirectory" for the current `AppDomain`.
+
+    ```csharp
+    public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
+    {
+        // Set up configuration sources.
+        var builder = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables();
+        Configuration = builder.Build();
+
+        // Set up data directory
+        string appRoot = appEnv.ApplicationBasePath;
+        AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(appRoot, "App_Data"));
+    }
+    ```
+
+11. Register `SampleDbContext` with DI system by supplying a new instance of `SampleDbContext`
     - Add the following code to the `ConfigureServices` method in `Startup`
 
     ```csharp
@@ -97,7 +115,7 @@
         return new SampleDbContext(connectionString);
     });
     ```
-11. Add a `ProductsController` that extends `Controller`
+12. Add a `ProductsController` that extends `Controller`
     - Pass `SampleDbContext` to the ctor
     - Add actions for GET, POST, PUT and DELETE
     - Override `Dispose` to dispose of the context
@@ -171,15 +189,10 @@
             _dbContext.Entry(product).State = EntityState.Deleted;
             await _dbContext.SaveChangesAsync();
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            _dbContext.Dispose();
-        }
     }
     ```
 
-12. Test the controller by running the app and submitting some requests.
+13. Test the controller by running the app and submitting some requests.
     - Use Postman or Fiddler
     - Set Content-Type header to application/json
     - The database should be created automatically

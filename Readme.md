@@ -46,6 +46,7 @@
         public DbSet<Product> Products { get; set; }
     }
     ```
+
 7. Optionally create a `SampleDbInitializer` class which inherits from `DropCreateDatabaseIfModelChanges<SampleDbContext>`.
     - Override the `Seed` method to see the database with data.
 
@@ -115,6 +116,7 @@
         return new SampleDbContext(connectionString);
     });
     ```
+
 12. Add a `ProductsController` that extends `Controller`
     - Pass `SampleDbContext` to the ctor
     - Add actions for GET, POST, PUT and DELETE
@@ -154,9 +156,6 @@
         [HttpPost]
         public async Task<ObjectResult> Post([FromBody]Product product)
         {
-            if (product == null)
-                return await Task.FromResult<ObjectResult>(null);
-
             _dbContext.Entry(product).State = EntityState.Added;
 
             await _dbContext.SaveChangesAsync();
@@ -167,9 +166,6 @@
         [HttpPut]
         public async Task<ObjectResult> Put([FromBody]Product product)
         {
-            if (product == null)
-                return await Task.FromResult<ObjectResult>(null);
-
             _dbContext.Entry(product).State = EntityState.Modified;
 
             await _dbContext.SaveChangesAsync();
@@ -178,23 +174,22 @@
 
         // DELETE api/products/5
         [HttpDelete("{id}")]
-        public async Task Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            if (id == 0) return;
-
             var product = await _dbContext.Products
                 .SingleOrDefaultAsync(e => e.Id == id);
-            if (product == null) return;
+            if (product == null) return Ok();
 
             _dbContext.Entry(product).State = EntityState.Deleted;
             await _dbContext.SaveChangesAsync();
+            return Ok();
         }
     }
     ```
 
 13. Test the controller by running the app and submitting some requests.
     - Use Postman or Fiddler
-    - Set Content-Type header to application/json
+    - Set Content-Type header to application/json for POST and PUT.
     - The database should be created automatically
 
     ```

@@ -1,5 +1,4 @@
 ﻿using System.Data.Entity;
-using System.Linq;
 using System.Threading.Tasks;
 using Experimental.AspNetCore.EF6.Contexts;
 using Experimental.AspNetCore.EF6.Models;
@@ -39,11 +38,7 @@ namespace Experimental.AspNetCore.EF6.Controllers
         [HttpPost]
         public async Task<ObjectResult> Post([FromBody]Product product)
         {
-            if (product == null)
-                return await Task.FromResult<ObjectResult>(null);
-
             _dbContext.Entry(product).State = EntityState.Added;
-
             await _dbContext.SaveChangesAsync();
             return Ok(product);
         }
@@ -52,27 +47,22 @@ namespace Experimental.AspNetCore.EF6.Controllers
         [HttpPut]
         public async Task<ObjectResult> Put([FromBody]Product product)
         {
-            if (product == null)
-                return await Task.FromResult<ObjectResult>(null);
-
             _dbContext.Entry(product).State = EntityState.Modified;
-
             await _dbContext.SaveChangesAsync();
             return Ok(product);
         }
 
         // DELETE api/products/5
         [HttpDelete("{id}")]
-        public async Task Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            if (id == 0) return;
-
             var product = await _dbContext.Products
                 .SingleOrDefaultAsync(e => e.Id == id);
-            if (product == null) return;
+            if (product == null) return Ok();
 
             _dbContext.Entry(product).State = EntityState.Deleted;
             await _dbContext.SaveChangesAsync();
+            return Ok();
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Experimental.AspNetCore.EF6.Contexts;
 using Experimental.AspNetCore.EF6.Models;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Experimental.AspNetCore.EF6.Controllers
 {

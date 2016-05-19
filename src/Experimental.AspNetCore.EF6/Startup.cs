@@ -1,28 +1,27 @@
 ﻿using System;
 using System.IO;
 using Experimental.AspNetCore.EF6.Contexts;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Experimental.AspNetCore.EF6
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
+        public Startup(IHostingEnvironment env)
         {
             // Set up configuration sources.
             var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
 
             // Set up data directory
-            string appRoot = appEnv.ApplicationBasePath;
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(appRoot, "App_Data"));
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "App_Data"));
         }
 
         public IConfigurationRoot Configuration { get; set; }
@@ -46,15 +45,8 @@ namespace Experimental.AspNetCore.EF6
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            app.UseIISPlatformHandler();
-
             app.UseStaticFiles();
-
             app.UseMvc();
         }
-
-        // Entry point for the application.
-        public static void Main(string[] args) => WebApplication.Run<Startup>(args);
     }
 }

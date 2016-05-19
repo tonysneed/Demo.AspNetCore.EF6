@@ -1,15 +1,14 @@
 # Using Entity Framework 6 with ASP.NET Core 1.0
 
-1. Start with a new C# web app using ASP.NET 5 (Core 1.0)
+*Updated for ASP.NET Core RC2 based on .NET CLI.*
+
+1. Start with a new C# web app using ASP.NET Core 1.0
     - Select the Web API template (preview)
 
-2. Open project.json and remove dnxcore50 from the frameworks section.
-    - Leave dnx451 under frameworks.
-
-3. Add Entity Framework under dependencies in the project.json file.
+2. Add Entity Framework under dependencies in the project.json file.
     - This should be the full EF 6.x.
 
-4.  Add a `DbConfig` class that extends `DbConfiguration`
+3.  Add a `DbConfig` class that extends `DbConfiguration`
 
     ```csharp
     public class DbConfig : DbConfiguration
@@ -21,7 +20,7 @@
     }
     ```
 
-5. Add a `Product` entity class.
+4. Add a `Product` entity class.
 
     ```csharp
     public class Product
@@ -32,7 +31,7 @@
     }
     ```
 
-6. Add a `SampleDbContext` inheriting from `DbContext`.
+5. Add a `SampleDbContext` inheriting from `DbContext`.
     - Place a `DbConfigurationType` attribute on it with `DbConfig`.
     - Add a `Products` property of type `DbSet<Product>`
 
@@ -47,7 +46,7 @@
     }
     ```
 
-7. Optionally create a `SampleDbInitializer` class which inherits from `DropCreateDatabaseIfModelChanges<SampleDbContext>`.
+6. Optionally create a `SampleDbInitializer` class which inherits from `DropCreateDatabaseIfModelChanges<SampleDbContext>`.
     - Override the `Seed` method to see the database with data.
 
     ```csharp
@@ -69,7 +68,7 @@
     }    
     ```
 
-8. Add a static ctor to `SampleDbContext` to set the context initializer.
+7. Add a static ctor to `SampleDbContext` to set the context initializer.
 
     ```csharp
     static SampleDbContext()
@@ -78,7 +77,7 @@
     }    
     ```
 
-9. Add a "Data" section to appsettings.json with a connection string
+8. Add a "Data" section to appsettings.json with a connection string
     - Here we specify LocalDb, but SQL Express or full is OK too.
 
     ```json
@@ -89,24 +88,24 @@
     }
     ```
 
-10. Update the `Startup` ctor to set the "DataDirectory" for the current `AppDomain`.
+9. Update the `Startup` ctor to set the "DataDirectory" for the current `AppDomain`.
 
     ```csharp
-    public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
+    public Startup(IHostingEnvironment env)
     {
         // Set up configuration sources.
         var builder = new ConfigurationBuilder()
+            .SetBasePath(env.ContentRootPath)
             .AddJsonFile("appsettings.json")
             .AddEnvironmentVariables();
         Configuration = builder.Build();
 
         // Set up data directory
-        string appRoot = appEnv.ApplicationBasePath;
-        AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(appRoot, "App_Data"));
+        AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "App_Data"));
     }
     ```
 
-11. Register `SampleDbContext` with DI system by supplying a new instance of `SampleDbContext`
+10. Register `SampleDbContext` with DI system by supplying a new instance of `SampleDbContext`
     - Add the following code to the `ConfigureServices` method in `Startup`
 
     ```csharp
@@ -117,7 +116,7 @@
     });
     ```
 
-12. Add a `ProductsController` that extends `Controller`
+11. Add a `ProductsController` that extends `Controller`
     - Pass `SampleDbContext` to the ctor
     - Add actions for GET, POST, PUT and DELETE
     - Override `Dispose` to dispose of the context

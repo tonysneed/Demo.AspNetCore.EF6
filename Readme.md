@@ -1,6 +1,6 @@
 # Using Entity Framework 6 with ASP.NET Core 1.0
 
-*Updated for ASP.NET Core RC2 based on .NET CLI.*
+*Updated for ASP.NET Core 1.0 RTM based on .NET CLI.*
 
 1. Start with a new C# web app using ASP.NET Core 1.0
     - Select the Web API template (preview)
@@ -186,7 +186,7 @@
     }
     ```
 
-13. Test the controller by running the app and submitting some requests.
+13. Test the controller by running the app with Ctrl + F5 and submitting some requests.
     - Use Postman or Fiddler
     - Set Content-Type header to application/json for POST and PUT.
     - The database should be created automatically
@@ -194,10 +194,10 @@
     ```
     GET: http://localhost:49951/api/products
     POST: http://localhost:49951/api/products
-      - Body: {"ProductName":"Ikura","UnitPrice":12}
+      - Body: {"productName":"Ikura","unitPrice":12}
     GET: http://localhost:49951/api/products/4
     PUT: http://localhost:49951/api/products
-      - Body: {"Id":4,"ProductName":"Ikura","UnitPrice":13}
+      - Body: {"id":4,"productName":"Ikura","unitPrice":13}
     DELETE: http://localhost:49951/api/products/4
     ```
 
